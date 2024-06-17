@@ -3,13 +3,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:guest_ms/screens/payment_screen.dart';
+import 'package:guest_ms/services/api.dart';
 import 'package:http/http.dart' as http;
+
 class RoomSelectionPage extends StatefulWidget {
+  const RoomSelectionPage({super.key});
+
   @override
-  _RoomSelectionPageState createState() => _RoomSelectionPageState();
+  RoomSelectionPageState createState() => RoomSelectionPageState();
 }
 
-class _RoomSelectionPageState extends State<RoomSelectionPage> {
+class RoomSelectionPageState extends State<RoomSelectionPage> {
   List rooms = [];
   int selectedDays = 1;
   double pricePerDay = 100.0;
@@ -21,7 +25,8 @@ class _RoomSelectionPageState extends State<RoomSelectionPage> {
   }
 
   void fetchRooms() async {
-    final response = await http.get(Uri.parse('http://your_backend_url/api/rooms'));
+    final response =
+        await http.get(Uri.parse(ApiServices().baseUrl + ApiServices().rooms));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -35,14 +40,16 @@ class _RoomSelectionPageState extends State<RoomSelectionPage> {
   void selectRoom(BuildContext context, String room) async {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PaymentPage(room, selectedDays, pricePerDay * selectedDays)),
+      MaterialPageRoute(
+          builder: (context) =>
+              PaymentPage(room, selectedDays, pricePerDay * selectedDays)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Select Room')),
+      appBar: AppBar(title: const Text('Select Room')),
       body: Column(
         children: [
           Expanded(
@@ -61,8 +68,8 @@ class _RoomSelectionPageState extends State<RoomSelectionPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Number of Days:'),
-                SizedBox(width: 10),
+                const Text('Number of Days:'),
+                const SizedBox(width: 10),
                 DropdownButton<int>(
                   value: selectedDays,
                   items: List.generate(30, (index) => index + 1)
@@ -85,16 +92,17 @@ class _RoomSelectionPageState extends State<RoomSelectionPage> {
     );
   }
 }
+
 class PasswordPage extends StatelessWidget {
   final String password;
   final DateTime expiryTime;
 
-  PasswordPage(this.password, this.expiryTime);
+  const PasswordPage(this.password, this.expiryTime, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Password')),
+      appBar: AppBar(title: const Text('Password')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -111,23 +119,23 @@ class PasswordPage extends StatelessWidget {
 class CountdownTimer extends StatefulWidget {
   final DateTime expiryTime;
 
-  CountdownTimer(this.expiryTime);
+  const CountdownTimer(this.expiryTime, {super.key});
 
   @override
-  _CountdownTimerState createState() => _CountdownTimerState();
+  CountdownTimerState createState() => CountdownTimerState();
 }
 
-class _CountdownTimerState extends State<CountdownTimer> {
-  Duration?remainingTime;
+class CountdownTimerState extends State<CountdownTimer> {
+  Duration? remainingTime;
 
   @override
   void initState() {
     super.initState();
     remainingTime = widget.expiryTime.difference(DateTime.now());
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         remainingTime = widget.expiryTime.difference(DateTime.now());
-        if (remainingTime!.isNegative ) {
+        if (remainingTime!.isNegative) {
           timer.cancel();
           // Revert to default password
         }
@@ -137,6 +145,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
 
   @override
   Widget build(BuildContext context) {
-    return Text('Time remaining: ${remainingTime!.inMinutes}:${remainingTime!.inSeconds % 60}');
+    return Text(
+        'Time remaining: ${remainingTime!.inMinutes}:${remainingTime!.inSeconds % 60}');
   }
 }
